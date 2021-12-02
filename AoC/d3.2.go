@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-func D2_1() {
-	dat, err := ioutil.ReadFile("inputd2.1")
+func D3_2() {
+	dat, err := ioutil.ReadFile("inputd3.1")
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
 	}
@@ -18,6 +18,8 @@ func D2_1() {
 
 	var depth int64 = 0
 	var distance int64 = 0
+	var aim int64 = 0
+
 	var i int
 	for i = 0; i < len(lines); i++ {
 		fmt.Printf("%s\n", lines[i])
@@ -27,16 +29,17 @@ func D2_1() {
 			var d int64
 			d, _ = strconv.ParseInt(values[1], 10, 0)
 			distance += d
+			depth += aim * d
 		}
 		if values[0] == "down" {
 			var d int64
 			d, _ = strconv.ParseInt(values[1], 10, 0)
-			depth += d
+			aim += d
 		}
 		if values[0] == "up" {
 			var d int64
 			d, _ = strconv.ParseInt(values[1], 10, 0)
-			depth -= d
+			aim -= d
 		}
 	}
 

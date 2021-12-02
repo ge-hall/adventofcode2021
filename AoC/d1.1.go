@@ -13,14 +13,13 @@ func D1_1() {
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
 	}
-	//fmt.Print(string(dat))
 
 	var lines = strings.Split(string(dat), "\n")
-	fmt.Printf("list %q\n",lines)
+	fmt.Printf("list %q\n", lines)
 	var result int = 0
 	var i int
 	var records = len(lines)
-	fmt.Printf("Number of lines = %d\n",records)
+	fmt.Printf("Number of lines = %d\n", records)
 	for i = 0; i < records; i++ {
 
 		if i == 0 {
@@ -33,11 +32,10 @@ func D1_1() {
 			result++
 			fmt.Printf("%d < %d - increase, count %d\n", l, h, result)
 
-		} else{
+		} else {
 			fmt.Printf("%d < %d - decrease, count %d\n", l, h, result)
 		}
 
 	}
 	fmt.Printf("Result: %d\n", result)
 }
-
