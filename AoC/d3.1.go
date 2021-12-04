@@ -16,34 +16,35 @@ func D3_1() {
 
 	var lines = strings.Split(string(dat), "\n")
 
-	var depth int64 = 0
-	var distance int64 = 0
-	var aim int64 = 0
+	var gamma int64 = 0
+	var epsilon int64 = 0
 
-	var i int
-	for i = 0; i < len(lines); i++ {
-		fmt.Printf("%s\n", lines[i])
-		var values = strings.Split(string(lines[i]), " ")
-		fmt.Printf("dir:%s, dist:%s\n", values[0], values[1])
-		if values[0] == "forward" {
-			var d int64
-			d, _ = strconv.ParseInt(values[1], 10, 0)
-			distance += d
-			depth += aim * d
-		}
-		if values[0] == "down" {
-			var d int64
-			d, _ = strconv.ParseInt(values[1], 10, 0)
-			aim += d
-		}
-		if values[0] == "up" {
-			var d int64
-			d, _ = strconv.ParseInt(values[1], 10, 0)
-			aim -= d
-		}
+	// for each bit
+	var b int
+	var bitsize = len(lines[0])
+	for b = 1; b <= bitsize; b++ {
+		var mask int16 = 1 << (bitsize - b)
+		var bitcount int = 0
+		var i int
+		for i = 0; i < len(lines); i++ {
+			//fmt.Printf("%s\n", lines[i])
+			var val int64
+			val, _ = strconv.ParseInt(lines[i], 2, bitsize+1)
 
+			if int16(val)&mask > 0 {
+				bitcount++
+			}
+
+		}
+		fmt.Printf("1 %d bitcount %d, mask %d	 \n", b, bitcount, mask)
+		// if current bit is most commonly 1 set it in gamma
+		if bitcount > len(lines)/2 {
+			gamma += int64(mask)
+		} else {
+			epsilon += int64(mask)
+		}
 	}
-
-	var result int64 = distance * depth
+	fmt.Printf("%d %d\n", gamma, epsilon)
+	var result int64 = gamma * epsilon
 	fmt.Printf("Result: %d\n", result)
 }
