@@ -7,6 +7,6 @@ func main() {
 	//AoC.D1_2()
 	//AoC.D2_1()
 	//AoC.D2_2()
-	AoC.D3_1()
-	//AoC.D2_2()
+	//AoC.D3_1()
+	AoC.D3_2()
 }
