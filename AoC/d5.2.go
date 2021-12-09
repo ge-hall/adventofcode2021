@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
+	"strconv"
 	"strings"
 )
 
@@ -15,16 +17,129 @@ func D5_2() {
 
 	var lines = strings.Split(string(dat), "\n")
 
+	// read vectors
+	var vectors []Vector
+	var maxX, maxY int64
 	var i int
 	for i = 0; i < len(lines); i++ {
 		fmt.Printf("%s\n", lines[i])
+
+		var x1, x2, y1, y2 int64
+
+		var vec, points []string
+
+		vec = strings.Split(lines[i], "->")
+		points = strings.Split(vec[0], ",")
+		//fmt.Printf("|%s|\n",points[1])
+		x1, _ = strconv.ParseInt(strings.Trim(points[0], " "), 10, 64)
+		y1, _ = strconv.ParseInt(strings.Trim(points[1], " "), 10, 64)
+		//fmt.Printf("%d\n",y1)
+		points = strings.Split(vec[1], ",")
+		x2, _ = strconv.ParseInt(strings.Trim(points[0], " "), 10, 64)
+		y2, _ = strconv.ParseInt(strings.Trim(points[1], " "), 10, 64)
+
+		vectors = append(vectors, Vector{x1, y1, x2, y2})
+		fmt.Printf("x1[%d], y1[%d] => x2[%d], y2[%d]\n", x1, y1, x2, y2)
 	}
 
-	// check winning card
-	//fmt.Printf("winning card %d\n", winner)
+	// set maxXY
+	for _, v := range vectors {
+		if v.x1 > maxX {
+			maxX = v.x1
+		}
+		if v.x2 > maxX {
+			maxX = v.x2
+		}
+		if v.y1 > maxY {
+			maxY = v.y1
+		}
+		if v.y2 > maxY {
+			maxY = v.y2
+		}
+	}
+
+	// create ventMap maxXY
+	ventMap := make([][]int64, maxX+1)
+	for r := range ventMap {
+		ventMap[r] = make([]int64, maxY+1)
+	}
+
+	// plot each vector
+	for _, v := range vectors {
+		var cx, minx, maxx, cy, miny, maxy int64 // use nested for to traverse line
+		// get maxX and maxY to use one traversal but will instead
+		if v.x1 > v.x2 {
+			maxx = v.x1
+			minx = v.x2
+		} else {
+			maxx = v.x2
+			minx = v.x1
+		}
+		if v.y1 > v.y2 {
+			maxy = v.y1
+			miny = v.y2
+		} else {
+			maxy = v.y2
+			miny = v.y1
+		}
+		fmt.Printf("v=[%d, %d]=>[%d, %d] \n", v.x1, v.y1, v.x2, v.y2)
+		//if v.x1 == v.y1 && v.x2 == v.y2 { print("match")}
+		if v.x1 == v.x2 || v.y1 == v.y2 {
+			print(" straight lines \n")
+			for cx = minx; cx <= maxx; cx++ {
+				for cy = miny; cy <= maxy; cy++ {
+					//fmt.Printf("cxy[%d,%d]\n", cx, cy)
+
+					// check if position
+					ventMap[cx][cy]++
+					//printMap(ventMap)
+
+				}
+			}
+
+		} else if math.Abs(float64(v.x1-v.x2)) == math.Abs(float64(v.y1-v.y2)) {
+			print(" diagonal lines \n")
+			var dist int = int(math.Abs(float64(v.x1 - v.x2)))
+			var d int
+			for d, cx, cy = 0, v.x1, v.y1; d <= dist; d++ {
+				//fmt.Printf("cxy[%d,%d]\n", cx, cy)
+
+				// check if position
+				ventMap[cx][cy]++
+				//printMap(ventMap)
+				if v.x1 < v.x2 {
+					cx++
+				} else {
+					cx--
+				}
+				if v.y1 < v.y2 {
+					cy++
+				} else {
+					cy--
+				}
+
+			}
+
+		} else {
+			print("other diagonal\n")
+
+		}
+
+		//printMap(ventMap)
+		print("\n")
+		// get value at each point and increment
+	}
+	var result int = 0
+	for c := range ventMap {
+		for r := range ventMap[c] {
+			if ventMap[r][c] >= 2 {
+				result++
+			}
+		}
+	}
 
 	//fmt.Printf("Winning Score = %d", scoreWinner(cards[winner].c, calledNumbers))
 	//fmt.Printf("%d %d\n", gamma, epsilon)
 	//var result int64 = gamma * epsilon
-	//fmt.Printf("Result: %d\n", result)
+	fmt.Printf("Result: %d\n", result)
 }
