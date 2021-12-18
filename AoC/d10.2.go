@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"sort"
 	"strings"
 )
+
+var completions [][]string
 
 func D10_2() {
 	dat, err := ioutil.ReadFile("inputd10.1")
@@ -15,13 +18,13 @@ func D10_2() {
 
 	var data = strings.Split(string(dat), "\n")
 	var tokenScore = map[string]int{
-		")": 3,
-		"]": 57,
-		"}": 1197,
-		">": 25137,
+		")": 1,
+		"]": 2,
+		"}": 3,
+		">": 4,
 	}
 	var illegals []string
-	var completions []string
+
 	for _, line := range data {
 		fmt.Printf("%s\n", line)
 		var stack []string
@@ -61,50 +64,31 @@ func D10_2() {
 				fmt.Printf("popped  %s off stack\n", popped)
 				fmt.Printf("stack = %o\n", stack)
 			}
-
 		}
 		print("============\n")
 		if !illegal {
-			// score completion tokens.
-			// for each right character from stack
-			for i := len(stack) - 1; i >= 0; {
+			nextIllegal(line)
 
-				var current = stack[i]
-				// right or left
-				if isLeft(current) {
-					// add right to completions
-					completions = append(completions, syntax[current])
-					// step left
-					i--
-				}
-				// if left we add to incomplete
-				var match string = ""
-				// for right char find left
-				for j := i; j < 0; j-- {
-					// if next char is right, find left  then hand back to i
-					var next = stack[j]
-					if isRight(next) {
-						match = getLeft(next)
-					} else {
-						// we have a left so check for match
-						if match != "" && next == match {
-							match = ""
-						}
-					}
-					i--
-				}
-			}
 		}
 	}
 	print("\n")
-	print("\n")
+	fmt.Printf(" c%o\n", completions)
 
 	var result int = 0
 
-	// cal syntax error score
-	for _, t := range illegals {
-		result += tokenScore[t]
+	// cal syntax completion scores
+	// store and sort then take mid value
+	var scores []int
+	for _, c := range completions {
+		var cresult int
+		for _, t := range c {
+			cresult = cresult*5 + tokenScore[t]
+			//fmt.Printf("%d\n", result)
+		}
+		scores = append(scores, cresult)
 	}
+	sort.Ints(scores)
+	result = scores[len(scores)/2]
 	fmt.Printf("Result: %d\n", result)
 }
 func getLeft(right string) string {
@@ -114,4 +98,51 @@ func getLeft(right string) string {
 		}
 	}
 	return "error"
+}
+
+func nextIllegal(line string) {
+	var stack []string
+	var last string
+	var thisCompletions []string
+	//parseLine
+	for i := len(line) - 1; i >= 0; i-- {
+		if len(stack) == 0 {
+			last = string(line[i])
+			if isRight(last) {
+				stack = append(stack, last)
+			} else {
+				thisCompletions = append(thisCompletions, syntax[string(line[i])])
+			}
+			continue
+		}
+		// if illegal char
+
+		// next char is illegal if
+		// last is right and c is left and not matched
+		if isRight(last) && isLeft(string(line[i])) && !isSyntaxPair(string(line[i]), last) {
+			thisCompletions = append(thisCompletions, string(line[i]))
+			fmt.Printf("Expected %s, but found %s\n", syntax[last], string(line[i]))
+			// clear stack and keep going
+			stack = nil
+		}
+
+		fmt.Printf("checking last %s, with %s\n", last, string(line[i]))
+		// iff legal and right then push
+		if isRight(string(line[i])) {
+
+			last = string(line[i])
+			stack = append(stack, string(line[i]))
+			fmt.Printf("pushing c %s on to stack\n", string(line[i]))
+		} else {
+			// must be right and legal so pop and set last to new top of stack
+			var popped = stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			if len(stack) > 0 {
+				last = stack[len(stack)-1]
+			}
+			fmt.Printf("popped  %s off stack\n", popped)
+			fmt.Printf("stack = %o\n", stack)
+		}
+	}
+	completions = append(completions, thisCompletions)
 }
