@@ -26,17 +26,35 @@ func D11_2() {
 		}
 		octopuses = append(octopuses, row)
 	}
-	flashCount := 0
-	steps := 100
+	breakStep := 0
+	steps := 2000
 	for i := 0; i < steps; i++ {
-		flashCount += runStep()
+		runStep()
+		if flashSync() {
+			fmt.Printf("breaking on step %d\n", i)
+			breakStep = i + 1
+			printCave()
+			break
+		}
+		//fmt.Printf("After step %d\n", i+1)
+		//printCave()
 	}
 	//fmt.Printf("%o\n", octopuses)
 
 	print("\n")
 	print("\n")
 
-	var result int = flashCount
+	var result int = breakStep
 
 	fmt.Printf("Result: %d\n", result)
+}
+func flashSync() bool {
+	for r := 0; r < len(octopuses); r++ {
+		for c := 0; c < len(octopuses[0]); c++ {
+			if octopuses[r][c] != 0 {
+				return false
+			}
+		}
+	}
+	return true
 }

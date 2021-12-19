@@ -43,18 +43,18 @@ func D11_1() {
 	fmt.Printf("Result: %d\n", result)
 }
 func runStep() int {
-	fmt.Printf("Start step with len %d\n", len(octopuses))
+	//fmt.Printf("Start step with len %d\n", len(octopuses))
 
-	printCave()
+	//printCave()
 	// increment energy
 	for r := 0; r < len(octopuses); r++ {
 		for c := 0; c < len(octopuses[0]); c++ {
 			octopuses[r][c]++
 		}
 	}
-	print("\n")
+	//print("\n")
 	// check for flashes
-	printCave()
+	//printCave()
 	totalFlash := 0
 	fCount := 1
 	for fCount > 0 {
@@ -69,7 +69,7 @@ func runStep() int {
 			}
 		}
 		totalFlash += fCount
-		printCave()
+		//printCave()
 	}
 	return totalFlash
 }
