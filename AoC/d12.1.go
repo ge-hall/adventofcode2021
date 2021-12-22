@@ -21,13 +21,14 @@ func D12_1() {
 		caves := strings.Split(line, "-")
 		// add both caves
 
-		cs.AddCave(caves[1])
 		// add connection
 		cs.ConnectCave(cs.AddCave(caves[0]), cs.AddCave(caves[1]))
 
 	}
-
+	print("===============\n\n")
 	cs.String()
+	print("===============\n\n")
+	cs.Traverse()
 }
 
 type CaveSystem struct {
@@ -45,6 +46,12 @@ func (c *Cave) String() string {
 	return fmt.Sprint(c.label)
 }
 func (cs *CaveSystem) AddCave(label string) *Cave {
+	// if already exists return
+	for i := 0; i < len(cs.caves); i++ {
+		if cs.caves[i].label == label {
+			return cs.caves[i]
+		}
+	}
 	cave := &Cave{label, strings.ToUpper(label) == label, label == "start", label == "end"}
 	cs.caves = append(cs.caves, cave)
 	return cave
@@ -59,6 +66,10 @@ func (cs *CaveSystem) ConnectCave(c1, c2 *Cave) {
 func (cs *CaveSystem) String() {
 	s := ""
 	for i := 0; i < len(cs.caves); i++ {
+		fmt.Printf("cave:%o\n", cs.caves[i])
+		if !cs.caves[i].entrance {
+			continue
+		}
 		s += cs.caves[i].String() + " -> "
 		near := cs.connections[*cs.caves[i]]
 		for j := 0; j < len(near); j++ {
@@ -68,4 +79,28 @@ func (cs *CaveSystem) String() {
 	}
 	fmt.Println(s)
 
+}
+func (cs *CaveSystem) Traverse() {
+	// get Starts
+	for i := 0; i < len(cs.caves); i++ {
+
+		if !cs.caves[i].entrance {
+			continue
+		}
+		var path []string
+		cs.FindPaths(*cs.caves[i], path)
+
+	}
+}
+func (cs *CaveSystem) FindPaths(cave Cave, path []string) {
+	path = append(path, cave.label)
+	if cave.exit {
+
+		fmt.Printf(",%s", path)
+		return
+	}
+
+	for c := 0; c < len(cs.connections[cave]); c++ {
+		cs.FindPaths(*cs.connections[cave][c], path)
+	}
 }
