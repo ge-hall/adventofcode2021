@@ -14,21 +14,16 @@ func D13_1() {
 	}
 
 	var data = strings.Split(string(dat), "\n")
-	var cs CaveSystem
+	//var paper [][]int
+	//var plotting = true
 	for _, line := range data {
 		fmt.Printf("%s\n", line)
-		// split into from and to
-		caves := strings.Split(line, "-")
-		// add both caves
-
-		// add connection
-		cs.ConnectCave(cs.AddCave(caves[0]), cs.AddCave(caves[1]))
-		cs.ConnectCave(cs.AddCave(caves[1]), cs.AddCave(caves[0]))
+		if line == "" {
+			print("empty line")
+		}
 
 	}
 	print("===============\n\n")
-	cs.String()
 	print("===============\n\n")
-	cs.Traverse()
 	print(pathCount)
 }
