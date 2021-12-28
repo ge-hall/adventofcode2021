@@ -63,7 +63,7 @@ func D13_1() {
 	}
 	for _, r := range paper {
 		for i, _ := range r {
-			r[i] = " "
+			r[i] = "."
 		}
 	}
 	// print plotting
@@ -141,6 +141,7 @@ func fold(paper [][]string, f int, dir string) {
 	} else {
 		for fa, fb := 0, 1; fa < f; {
 			for y := 0; y < len(paper); y++ {
+
 				if paper[y][len(paper[y])-fb] == "#" {
 					paper[y][fa] = paper[y][len(paper[y])-fb]
 				}
