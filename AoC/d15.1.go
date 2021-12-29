@@ -14,10 +14,11 @@ func D15_1() {
 	}
 
 	var data = strings.Split(string(dat), "\n")
-
+	// read data into graph
 	for _, line := range data {
 		fmt.Printf("%s\n", line)
 
 	}
+	// implement Dijkstra
 
 }
