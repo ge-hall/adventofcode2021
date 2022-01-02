@@ -10,16 +10,18 @@ import (
 )
 
 type Point struct {
-	i int
-	j int
-	v int
+	i   int
+	j   int
+	v   int
+	src *Point
 }
 
 var graphspace = make([][]int, 0)
 var risk [][]int
 var sptSet [][]bool
 
-var heads = []Point{{0, 0, 0}}
+var nexts []Point
+var heads = []Point{{0, 0, 0, nil}}
 
 func D15_1() {
 	dat, err := ioutil.ReadFile("inputd15")
@@ -49,19 +51,20 @@ func D15_1() {
 		risk[i] = make([]int, len(graphspace[0]))
 		sptSet[i] = make([]bool, len(graphspace[0]))
 		for j, _ := range risk[i] {
-			risk[i][j] = math.MaxInt64
+			risk[i][j] = 0 //math.MaxInt64
 			sptSet[i][j] = false
 		}
 	}
 	fmt.Printf("%v\n", risk)
 	fmt.Printf("%v\n", sptSet)
 	risk[0][0] = 0
-	totalRisk := 0
+	//totalRisk := 0
 	sptSet[0][0] = true
 	// iterate until complete with break
 	// dev with short iteration control
 
-	for c := 0; c < 3; c++ {
+	for c := 0; c < 8; c++ {
+		fmt.Printf("content of heads: %v\n", heads)
 		// find lowest risk path from current heads
 		for _, point := range heads {
 			i := point.i
@@ -103,58 +106,83 @@ func D15_1() {
 					minVal = r
 				}
 			}
+			if minVal == math.MaxInt64 {
+				continue
+			}
 			// need to move this check up so it compares each minimum for each head.
 			// since we are storing the minimum in the head Point we can have a second enumeration to get teh minimum to follow.
 			// if not in sptSet && risk < risk
 			// set risk
 			if t == minVal {
 				fmt.Printf("t is min %d\n", t)
-				heads = append(heads, Point{i - 1, j, minVal + point.v})
+				nexts = append(nexts, Point{i - 1, j, minVal + point.v, &point})
 				//risk[i-1][j] = minVal + risk[i][j]
-				setVisited(i, j)
+				//setVisited(i, j)
 
 			}
 			if r == minVal {
 				fmt.Printf("r is min %d\n", r)
-				heads = append(heads, Point{i, j + 1, minVal + point.v})
+				nexts = append(nexts, Point{i, j + 1, minVal + point.v, &point})
 				//risk[i][j+1] = minVal + risk[i][j]
-				setVisited(i, j)
+				//setVisited(i, j)
 			}
 			if b == minVal {
 				fmt.Printf("b is min %d\n", b)
-				heads = append(heads, Point{i + 1, j, minVal + point.v})
+				nexts = append(nexts, Point{i + 1, j, minVal + point.v, &point})
 				//risk[i+1][j] = minVal + risk[i][j]
-				setVisited(i, j)
+				//setVisited(i, j)
 			}
 			if l == minVal {
 				fmt.Printf("l is min %d\n", l)
-				heads = append(heads, Point{i, j - 1, minVal + point.v})
+				nexts = append(nexts, Point{i, j - 1, minVal + point.v, &point})
 				//risk[i][j-1] = minVal + risk[i][j]
-				setVisited(i, j)
+				//setVisited(i, j)
 			}
 
 		}
-		fmt.Printf("content of heads: %v\n", heads)
-		fmt.Printf("risk =: %v\n", risk)
-		// check heads for minimum value
-		var minHead *Point
-		var winners []Point
-		for _, head := range heads {
-			if minHead == nil {
-				minHead = &head
-			} else if minHead.v <= head.v {
-				winners = append(winners, head)
+		fmt.Printf("content of nexts: %v\n", nexts)
 
-			}
-
+		// check for minimum nexts value
+		// convert to a head and save it's head to spt
+		if len(nexts) == 0 {
+			continue
 		}
-		for _, winner := range winners {
-			risk[winner.i][winner.j] = winner.v
-			setVisited(winner.i, winner.j)
+		var minNext Point = nexts[0]
+		for _, next := range nexts {
+			if next.v <= minNext.v {
+
+				minNext = next
+			}
+		}
+		if minNext.v == math.MaxInt64 {
+			break
+		}
+		fmt.Printf("minNext: %o\n", minNext)
+		// we could have a draw so need to check each next and change state accordingly
+		for _, winner := range nexts {
+			if winner.v == minNext.v {
+				risk[winner.i][winner.j] = winner.v
+				//setVisited(winner.i, winner.j)
+				setVisited(winner.src.i, winner.src.j)
+				sptSet[winner.i][winner.j] = true
+				heads = append(heads, winner)
+				//removeNext(winner.i, winner.j)
+			}
+		}
+		nexts = nil
+		for _, r := range risk {
+			fmt.Printf("risk =: %v\n", r)
+		}
+		for _, s := range sptSet {
+			fmt.Printf("spt =: %v\n", s)
+		}
+
+		if risk[len(risk)-1][len(risk[0])-1] > 0 {
+			break
 		}
 
 	}
-	fmt.Printf("TotalRisk is %d", totalRisk)
+	fmt.Printf("TotalRisk is %d", risk[len(risk)-1][len(risk[0])-1])
 
 }
 func setVisited(i int, j int) {
@@ -173,6 +201,20 @@ func removeHead(i int, j int) {
 		return
 	}
 	heads = append(heads[0:removeIndex], heads[removeIndex+1:len(heads)]...)
+}
+
+func removeNext(i int, j int) {
+	// find position
+	removeIndex := -1
+	for hi, p := range nexts {
+		if p.i == i && p.j == j {
+			removeIndex = hi
+		}
+	}
+	if removeIndex == -1 {
+		return
+	}
+	nexts = append(nexts[0:removeIndex], nexts[removeIndex+1:len(nexts)]...)
 }
 func checkBounds(space [][]int, i int, j int) bool {
 	return i >= 0 && j >= 0 && i < len(space) && j < len(space[0])
