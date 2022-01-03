@@ -9,22 +9,7 @@ import (
 	"strings"
 )
 
-type Point struct {
-	i   int
-	j   int
-	v   int
-	src *Point
-}
-
-var graphspace = make([][]int, 0)
-var risk [][]int
-var sptSet [][]bool
-
-var nexts []Point
-var heads = []Point{{0, 0, 0, nil}}
-var prevHeads []Point
-
-func D15_1() {
+func D15_2() {
 	dat, err := ioutil.ReadFile("inputd15")
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
@@ -43,6 +28,10 @@ func D15_1() {
 		graphspace = append(graphspace, newLine)
 
 	}
+	extrapolateSpace()
+	//if 0 == 0 {
+	//	return
+	//}
 
 	// implement Dijkstra without adjacency matrix or priority queue perhaps
 	// not planning on finding a library, might sneak a peak in an old data structure text.
@@ -231,95 +220,27 @@ func D15_1() {
 
 }
 
-func nextExists(i int, j int, v int, p *Point) bool {
-	for _, n := range nexts {
-		if n.i == i && n.j == j && n.v == v && n.src == p {
-			return true
-		}
+func extrapolateSpace() {
+	// build into a new array
+	space := make([][]int, len(graphspace)*5)
+	for r, _ := range space {
+		space[r] = make([]int, len(graphspace[0])*5)
 	}
-	return false
+	for r, _ := range space {
+		for c, _ := range space[r] {
 
-}
-func setVisited(i int, j int) {
-	sptSet[i][j] = true
-	//removeHead(i, j)
-}
-func countVisited() int {
-	var count int = 0
-	for _, r := range sptSet {
-		for _, n := range r {
-			if n {
-				count++
+			i := r / len(graphspace) // , 0/10 = 0, 10/10 = 1, 21/10 = 2
+			j := c / len(graphspace[0])
+			baseValue := (graphspace[r%len(graphspace)][c%len(graphspace[0])] + i + j)
+			if baseValue > 9 {
+				baseValue -= 9
 			}
+			space[r][c] = baseValue
 		}
 	}
-	return count
-}
-func reduceHeads() {
-	for _, h := range heads {
-		//fmt.Printf("checkign head to remove:%o\n", h)
-		remove := true
-		if checkBoundsBool(sptSet, h.i-1, h.j) && !sptSet[h.i-1][h.j] {
-			remove = false
-		}
-		if checkBoundsBool(sptSet, h.i+1, h.j) && !sptSet[h.i+1][h.j] {
-			remove = false
-		}
-		if checkBoundsBool(sptSet, h.i, h.j-1) && !sptSet[h.i][h.j-1] {
-			remove = false
-		}
-		if checkBoundsBool(sptSet, h.i, h.j+1) && !sptSet[h.i][h.j+1] {
-			remove = false
-		}
-		if remove {
-			removeHead(h.i, h.j)
-		}
-
+	for _, row := range space {
+		fmt.Printf("%v\n", row)
 	}
-}
-func removeHead(i int, j int) {
-	// find position
-	removeIndex := -1
-	for hi, p := range heads {
-		if p.i == i && p.j == j {
-			removeIndex = hi
-		}
-	}
-	if removeIndex == -1 {
-		return
-	}
-	// remove nexts that have this head set as src
-	for _, n := range nexts {
-		if (*n.src).i == heads[removeIndex].i && (*n.src).j == heads[removeIndex].j {
-			removeNext(n.i, n.j)
-		}
-	}
-	heads = append(heads[0:removeIndex], heads[removeIndex+1:len(heads)]...)
-}
-
-func removeNext(i int, j int) {
-	// find position
-	removeIndex := -1
-	for hi, p := range nexts {
-		if p.i == i && p.j == j {
-			removeIndex = hi
-		}
-	}
-	if removeIndex == -1 {
-		return
-	}
-	nexts = append(nexts[0:removeIndex], nexts[removeIndex+1:len(nexts)]...)
-}
-func checkBounds(space [][]int, i int, j int) bool {
-	return i >= 0 && j >= 0 && i < len(space) && j < len(space[0])
-}
-
-func checkBoundsBool(space [][]bool, i int, j int) bool {
-	return i >= 0 && j >= 0 && i < len(space) && j < len(space[0])
-}
-func getVal(space [][]int, i int, j int) int {
-	if !checkBounds(space, i, j) {
-		return math.MaxInt64
-	}
-	return space[i][j]
+	//fmt.Printf("%v\n", space)
+	graphspace = space
 }
