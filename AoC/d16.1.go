@@ -8,7 +8,7 @@ import (
 )
 
 func D16_1() {
-	dat, err := ioutil.ReadFile("inputd15")
+	dat, err := ioutil.ReadFile("inputd16")
 	if err != nil {
 		log.Fatalf("unable to read file: %v", err)
 	}
