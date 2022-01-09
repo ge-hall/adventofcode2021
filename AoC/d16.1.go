@@ -30,69 +30,65 @@ func D16_1() {
 
 		// parse packets
 		versionSum := 0
-		readPacket(dst, bitPointer)
+		versionSum = readPacket(dst, &bitPointer, 0)
 
 		fmt.Printf("result = %d", versionSum)
 
 	}
 
 }
-func readPacket(dst []byte, bitPtr int) int {
-	var packet int
+func readPacket(dst []byte, bitPtr *int, length int) int {
+	//var packet int
 	versionSum := 0
-	version := getNextBits(dst, 3, bitPtr)
-	if version == 0 {
-		return 0
-	} // extra bits
+	version := getNextBits(dst, 3, *bitPtr)
+	//if version == 0 {
+	//	return 0
+	//} // extra bits
 	versionSum += int(version)
-	bitPtr += 3
+	*bitPtr += 3
+	length -= 3
 	fmt.Printf("reading version %d packet.\n", version)
 
-	typeID := getNextBits(dst, 3, bitPtr)
-	bitPtr += 3
-	fmt.Printf("TTT:%03b\n", typeID)
+	typeID := getNextBits(dst, 3, *bitPtr)
+	*bitPtr += 3
+	length -= 3
+	fmt.Printf("TypeID:%d\n", typeID)
 
 	if typeID == 4 {
-		for i := 0; i < 3; i++ {
-			packet = getNextBits(dst, 5, bitPtr)
-			bitPtr += 5
-			fmt.Printf(":packet:%b\n", packet)
+		// rules:
+		// read groups until msb = 0
+		var msb = 1
+		for msb == 1 {
+			group := getNextBits(dst, 5, *bitPtr)
+			*bitPtr += 5
+			msb = group & 10000 >> 4
+			fmt.Printf(":group:%b\n", group)
 		}
 
 	} else {
-		lengthType := getNextBits(dst, 1, bitPtr)
-		bitPtr += 1
-		fmt.Printf("lengthType:%b\n", lengthType)
+		lengthType := getNextBits(dst, 1, *bitPtr)
+		*bitPtr += 1
+		fmt.Printf("Operator packet with lengthType:%b\n", lengthType)
 		var packetCount int
 		var packetLength int = 11
 
 		if lengthType == 0 {
-			packetLength = getNextBits(dst, 15, bitPtr)
-			bitPtr += 15
+			packetLength = getNextBits(dst, 15, *bitPtr)
+			*bitPtr += 15
 			fmt.Printf(":packetLength:%d\n\n\n", packetLength)
-			// read 11 bit chunks then remainder
-			for packetBits := 0; packetBits < packetLength; packetBits += 11 {
-				if packetLength-packetBits > 22 {
-					packet = getNextBits(dst, 11, bitPtr)
-					fmt.Printf(":--packet:%d\n", packet)
-					bitPtr += 11
-				} else {
-
-					packet = getNextBits(dst, packetLength-packetBits, bitPtr)
-					bitPtr += packetLength - packetBits
-					fmt.Printf(":--packet:%d\n", packet)
-					break
-				}
+			for remaining := packetLength; remaining > 0; {
+				curPtr := *bitPtr
+				versionSum += readPacket(dst, bitPtr, packetLength)
+				remaining -= *bitPtr - curPtr
 			}
+
 		} else {
-			packetCount = getNextBits(dst, 11, bitPtr)
-			bitPtr += 11
-			fmt.Printf(":packetCount:%d\n\n\n", packetCount)
+			packetCount = getNextBits(dst, 11, *bitPtr)
+			*bitPtr += 11
+			fmt.Printf(":Operator Packet contains packetCount:%d\n\n\n", packetCount)
 			// packet count only applies to lengthType 1
 			for i := 0; i < int(packetCount); i++ {
-				packet = getNextBits(dst, 11, bitPtr)
-				bitPtr += 11
-				fmt.Printf(":packet:%d\n", packet)
+				versionSum += readPacket(dst, bitPtr, 0)
 			}
 		}
 
