@@ -31,5 +31,7 @@ func main() {
 	//AoC.D15_1()
 	//AoC.D15_2()
 	//AoC.D16_1()
-	AoC.D16_2()
+	//AoC.D16_2()
+	//AoC.D16_Test()
+	AoC.D17_1()
 }
