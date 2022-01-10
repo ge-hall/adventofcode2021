@@ -96,7 +96,7 @@ func readPacket(dst []byte, bitPtr *int, length int) int {
 	return versionSum
 }
 func getNextBits(bytes []byte, bits int, bitPtr int) int {
-	fmt.Printf("%v, %d, %d[%08b]%d\n", bytes, bits, bitPtr/8, bytes[bitPtr/8], bytes[bitPtr/8])
+	fmt.Printf("%d, %d[%08b]%d\n", bits, bitPtr/8, bytes[bitPtr/8], bytes[bitPtr/8])
 	var result int
 	// for each bit
 	for b := 0; b < bits; b++ {
