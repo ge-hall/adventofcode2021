@@ -47,8 +47,9 @@ func D17_1() {
 		var xVelocity int64 = 0
 		var yVelocity int64 = 0
 		var highest int64 = 0
-		for j := 0; j < 20; j++ {
-			for k := 0; k < 2000; k++ {
+		var hitCount int64 = 0
+		for j := -50; j < 500; j++ {
+			for k := -2000; k < 2000; k++ {
 				var maxY int64 = 0
 				xVelocity = int64(j)
 				yVelocity = int64(k)
@@ -76,6 +77,7 @@ func D17_1() {
 						if maxY > highest {
 							highest = maxY
 						}
+						hitCount++
 						fmt.Printf("hit target with %d %d %d\n\n", j, k, maxY)
 						break
 					}
@@ -87,7 +89,7 @@ func D17_1() {
 			}
 		}
 
-		fmt.Printf("Result:%d\n", highest)
+		fmt.Printf("Result:%d %d\n", highest, hitCount)
 	}
 
 }
