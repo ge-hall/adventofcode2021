@@ -40,15 +40,15 @@ func D17_1() {
 		bounds := Bounds{x1, y1, x2, y2}
 		fmt.Printf("x1,y1[%d,%d] x2,y2[%d,%d]\n", x1, y1, x2, y2)
 
-		stepCount := 20
+		stepCount := 1000
 
 		var x int64 = 0
 		var y int64 = 0
 		var xVelocity int64 = 0
 		var yVelocity int64 = 0
 		var highest int64 = 0
-		for j := 0; j < 1000; j++ {
-			for k := 0; k < 1000; k++ {
+		for j := 0; j < 20; j++ {
+			for k := 0; k < 2000; k++ {
 				var maxY int64 = 0
 				xVelocity = int64(j)
 				yVelocity = int64(k)
@@ -93,7 +93,7 @@ func D17_1() {
 }
 
 func checkTargetBounds(x int64, y int64, b Bounds) int {
-	fmt.Printf("checking x%d, y%d bounds %d %d %d %d\n", x, y, b.x1, b.x2, b.y1, b.y2)
+	//fmt.Printf("checking x%d, y%d bounds %d %d %d %d\n", x, y, b.x1, b.x2, b.y1, b.y2)
 	if x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2 {
 		print("within bounds\n")
 		return 0
