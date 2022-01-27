@@ -18,7 +18,7 @@ type SyntaxTree struct {
 	depth int // keep track to save traverse to derive
 }
 
-func (n TreeNode) AddNode(value string, left bool) {
+func (n *TreeNode) AddNode(value string, left bool) {
 
 	// check if we are adding Leaf
 	val, err := strconv.ParseInt(value, 10, 64)
@@ -41,12 +41,35 @@ func (n TreeNode) AddNode(value string, left bool) {
 
 }
 
-func (t SyntaxTree) buildFromString(line string) {
+func (n *TreeNode) String() (result string) {
+	result = string(rune(n.value))
+	return result
+}
+
+func (n *TreeNode) Print() {
+	if n != nil {
+		//if n.left == nil && n.right == nil {
+		fmt.Printf("{%d}", n.value)
+		//}
+
+		fmt.Printf("\n")
+		n.left.Print()
+		n.right.Print()
+	}
+}
+
+func (t *SyntaxTree) buildFromString(line string) {
 
 	t.top = &TreeNode{}
 	left, right := getParts(line)
 	t.top.AddNode(string(left), true)
 	t.top.AddNode(string(right), false)
+}
+
+func (t *SyntaxTree) Print() {
+	print("Printing Tree\n")
+	// traverse tree and print
+	t.top.Print()
 }
 
 func getParts(expression string) (left string, right string) {
@@ -55,7 +78,7 @@ func getParts(expression string) (left string, right string) {
 
 	expression = expression[1 : len(expression)-1]
 	// strips current level brackets
-	fmt.Printf("Stripped outer brackets for top of tree %s\n", expression)
+	//fmt.Printf("Stripped outer brackets for top of tree %s\n", expression)
 	start := string(expression[0])
 	end := string(expression[len(expression)-1])
 	fmt.Printf("start, end: %s, %s\n", start, end)
@@ -66,11 +89,9 @@ func getParts(expression string) (left string, right string) {
 		// start is a number as left  and everything else is right
 		left = start
 		right = string(expression[2:len(expression)])
-		fmt.Printf("start is a number %s, %d\n", start, right)
 	} else if endErr == nil {
 		// end is a number and everything to left is left
 		left = string(expression[0 : len(expression)-2])
-		fmt.Printf("end is a number %s, %d\n", left, end)
 		right = end
 	} else {
 		// we need to find the middle and split
@@ -88,12 +109,15 @@ func D18_1() {
 	var data = strings.Split(string(dat), "\n")
 	var tree SyntaxTree = SyntaxTree{}
 	for _, line := range data {
-		fmt.Printf("%s\n", line)
+		//fmt.Printf("%s\n", line)
 
-		fmt.Printf("Tree:%o\n", tree)
+		fmt.Printf("Tree:%o\n", tree.top)
 		tree.buildFromString(line)
-		fmt.Printf("Tree:%o\n", tree)
+		fmt.Printf("Tree:%o\n", tree.top)
 
 	}
+	print("=====================\n")
+	print(tree.top)
+	tree.Print()
 
 }
